@@ -27,17 +27,28 @@ const gameHooks = {
 
   hookPlayerDeath() {
     // Prevent player death when God Mode is active
-    window.originalPlayerDeath = window.originalPlayerDeath || function() {
+    window.originalOnDeath = window.originalOnDeath || function() {
       return true;
     };
 
-    window.playerDeath = function(...args) {
+    // Override death detection
+    window.checkDeath = function(...args) {
       if (modMenu.state.godModeActive) {
         console.log('[GOD MODE] Death prevented!');
         return false; // Prevent death
       }
-      return window.originalPlayerDeath.apply(this, args);
+      return window.originalOnDeath.apply(this, args);
     };
+
+    // Continuously ensure player stays alive in god mode
+    window.antiDeathLoop = setInterval(() => {
+      if (modMenu.state.godModeActive && typeof window.playerHealth !== 'undefined') {
+        window.playerHealth = Infinity;
+        window.health = Infinity;
+        window.isDead = false;
+        window.canDie = false;
+      }
+    }, 100);
   },
 
   hookAutoPlay() {
@@ -46,6 +57,7 @@ const gameHooks = {
       if (modMenu.state.autoPlayActive) {
         window.simulateJump = true;
         window.playerHealth = Infinity;
+        window.health = Infinity;
         window.playerInvincible = true;
       }
     };
@@ -57,16 +69,21 @@ const gameHooks = {
       // God Mode: Keep player alive
       if (modMenu.state.godModeActive) {
         window.playerHealth = Infinity;
+        window.health = Infinity;
         window.playerInvincible = true;
         window.canDie = false;
+        window.isDead = false;
       }
 
       // Auto Play: Perfect gameplay
       if (modMenu.state.autoPlayActive) {
         window.playerHealth = Infinity;
+        window.health = Infinity;
         window.playerInvincible = true;
         window.remainingJumps = Infinity;
         window.dodgeActive = true;
+        window.canDie = false;
+        window.isDead = false;
         window.perfectTiming = (window.perfectTiming || 0) + 1;
       }
     };
