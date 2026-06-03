@@ -142,15 +142,15 @@
             position: fixed;
             top: 10px;
             right: 10px;
-            background: rgba(0, 0, 0, 0.85);
-            border: 3px solid #00ff00;
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #ff00ff;
             border-radius: 8px;
-            color: #00ff00;
+            color: #ff00ff;
             font-size: 14px;
-            max-width: 350px;
+            max-width: 300px;
             z-index: 10000;
             font-family: 'Courier New', monospace;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);
         }
         
         #modMenu.minimized {
@@ -158,18 +158,19 @@
         }
         
         .mod-header {
-            background: #00ff00;
+            background: #ff00ff;
             color: #000;
-            padding: 10px;
+            padding: 12px;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            font-size: 16px;
         }
         
         .mod-content {
-            padding: 12px;
+            padding: 15px;
             max-height: 400px;
             overflow-y: auto;
         }
@@ -179,9 +180,9 @@
         }
         
         .mod-section {
-            margin-bottom: 10px;
-            border-bottom: 1px solid #00ff00;
-            padding-bottom: 8px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #ff00ff;
+            padding-bottom: 10px;
         }
         
         .mod-section:last-child {
@@ -189,72 +190,59 @@
         }
         
         .mod-title {
-            color: #00ff00;
+            color: #ff00ff;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             text-decoration: underline;
+            font-size: 13px;
         }
         
         .mod-button {
-            background: #00ff00;
+            background: #ff00ff;
             color: #000;
-            border: 2px solid #00ff00;
-            padding: 6px 10px;
-            margin: 3px;
+            border: 2px solid #ff00ff;
+            padding: 8px 12px;
+            margin: 4px 0;
             cursor: pointer;
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 5px;
             transition: all 0.2s;
-            font-size: 12px;
+            font-size: 13px;
+            width: 100%;
+            text-align: center;
         }
         
         .mod-button:hover {
-            background: #00cc00;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+            background: #dd00dd;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
         }
         
         .mod-button:active {
-            background: #009900;
+            background: #bb00bb;
         }
         
-        .mod-toggle {
-            display: inline-block;
-            width: 30px;
-            height: 15px;
-            background: #333;
-            border: 2px solid #00ff00;
-            border-radius: 7px;
-            position: relative;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        
-        .mod-toggle.active {
+        .mod-button.active {
             background: #00ff00;
-        }
-        
-        .mod-toggle::before {
-            content: '';
-            position: absolute;
-            width: 11px;
-            height: 11px;
-            background: #00ff00;
-            border-radius: 50%;
-            top: 1px;
-            left: 1px;
-            transition: all 0.3s;
-        }
-        
-        .mod-toggle.active::before {
-            left: 14px;
-            background: #000;
+            color: #000;
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
         }
         
         .mod-status {
             color: #00ff00;
-            font-size: 11px;
-            margin-top: 5px;
-            padding: 5px;
+            font-size: 12px;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0, 255, 0, 0.15);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 0, 0.5);
+        }
+
+        .shortcut-info {
+            color: #00ff00;
+            font-size: 10px;
+            margin-top: 8px;
+            padding: 6px;
             background: rgba(0, 255, 0, 0.1);
             border-radius: 3px;
         }
@@ -274,48 +262,51 @@
     <!-- MOD MENU -->
     <div id="modMenu">
         <div class="mod-header" onclick="toggleModMenu()">
-            <span>⚙️ MOD MENU</span>
+            <span>🎮 MOD MENU</span>
             <span id="toggleBtn">−</span>
         </div>
         <div id="modContent" class="mod-content">
             <div class="mod-section">
-                <div class="mod-title">Power-Ups</div>
-                <button class="mod-button" onclick="modMenu.grantAllPowerUps()">Grant All Power-Ups</button>
-                <button class="mod-button" onclick="modMenu.maxPowerUps()">Max All Power-Ups</button>
+                <div class="mod-title">⚡ GOD MODE</div>
+                <button class="mod-button" id="godModeBtn" onclick="toggleGodMode()">God Mode: OFF</button>
+                <div class="shortcut-info">Ctrl+Shift+G</div>
             </div>
             
             <div class="mod-section">
-                <div class="mod-title">Player Abilities</div>
-                <button class="mod-button" onclick="modMenu.unlimitedJumps()">Unlimited Jumps</button>
-                <button class="mod-button" onclick="modMenu.speedBoost()">Speed Boost</button>
-                <button class="mod-button" onclick="modMenu.godMode()">God Mode</button>
-            </div>
-            
-            <div class="mod-section">
-                <div class="mod-title">Gameplay</div>
-                <button class="mod-button" onclick="modMenu.noClip()">No Clip</button>
-                <button class="mod-button" onclick="modMenu.freezeTime()">Freeze Time</button>
-                <button class="mod-button" onclick="modMenu.skipLevel()">Skip Level</button>
-                <button class="mod-button" onclick="modMenu.unlockAllLevels()">Unlock All Levels</button>
-            </div>
-            
-            <div class="mod-section">
-                <div class="mod-title">Currency & Resources</div>
-                <button class="mod-button" onclick="modMenu.addCurrency(1000)">+ 1000 Gold</button>
-                <button class="mod-button" onclick="modMenu.addCurrency(10000)">+ 10000 Gold</button>
-                <button class="mod-button" onclick="modMenu.maxCurrency()">Max Currency</button>
-            </div>
-            
-            <div class="mod-section">
-                <div class="mod-title">Developer Tools</div>
-                <button class="mod-button" onclick="modMenu.showConsole()">Toggle Console</button>
-                <button class="mod-button" onclick="modMenu.showStats()">Show Stats</button>
-                <button class="mod-button" onclick="modMenu.dumpGameState()">Dump Game State</button>
+                <div class="mod-title">🤖 AUTO PLAY</div>
+                <button class="mod-button" id="autoPlayBtn" onclick="toggleAutoPlay()">Auto Play: OFF</button>
+                <div class="shortcut-info">Ctrl+Shift+A</div>
             </div>
             
             <div class="mod-status" id="modStatus">Status: Ready</div>
         </div>
     </div>
+
+    <script>
+        // Toggle mod menu visibility
+        function toggleModMenu() {
+            const modContent = document.getElementById('modContent');
+            const toggleBtn = document.getElementById('toggleBtn');
+            modContent.classList.toggle('hidden');
+            toggleBtn.textContent = modContent.classList.contains('hidden') ? '+' : '−';
+        }
+
+        // Toggle God Mode
+        function toggleGodMode() {
+            modMenu.godMode();
+            const btn = document.getElementById('godModeBtn');
+            btn.classList.toggle('active');
+            btn.textContent = modMenu.state.godModeActive ? 'God Mode: ON' : 'God Mode: OFF';
+        }
+
+        // Toggle Auto Play
+        function toggleAutoPlay() {
+            modMenu.autoPlay();
+            const btn = document.getElementById('autoPlayBtn');
+            btn.classList.toggle('active');
+            btn.textContent = modMenu.state.autoPlayActive ? 'Auto Play: ON' : 'Auto Play: OFF';
+        }
+    </script>
     
     <script src="js/modMenu.js"></script>
     <script src="js/gameHooks.js"></script>
