@@ -1,85 +1,73 @@
 /**
  * Game Hooks - Runtime modification system
- * Intercepts game functions to apply mod effects
+ * Applies God Mode and Auto Play effects
  */
 
 const gameHooks = {
   // Hook into game initialization
   initGameMods() {
-    // Intercept player position updates
-    this.hookPlayerPosition();
-    // Intercept collision detection
     this.hookCollisionDetection();
-    // Intercept scoring system
-    this.hookScoringSystem();
-    // Intercept level loading
-    this.hookLevelLoading();
-  },
-
-  hookPlayerPosition() {
-    window.originalPlayerUpdate = window.originalPlayerUpdate || {
-      x: 0,
-      y: 0,
-      vx: 0,
-      vy: 0
-    };
+    this.hookPlayerDeath();
+    this.hookAutoPlay();
   },
 
   hookCollisionDetection() {
-    // This will intercept collision checks when mods are active
+    // Bypass collisions in God Mode or Auto Play
     window.originalCheckCollision = window.originalCheckCollision || function() {
       return false;
     };
 
     window.checkCollision = function(...args) {
-      if (modMenu.state.godModeActive || modMenu.state.noClipActive) {
-        return false; // No collision when god mode/no clip is active
+      if (modMenu.state.godModeActive || modMenu.state.autoPlayActive) {
+        return false; // No collision when god mode/auto play is active
       }
       return window.originalCheckCollision.apply(this, args);
     };
   },
 
-  hookScoringSystem() {
-    window.originalAddScore = window.originalAddScore || function(points) {
-      window.playerScore = (window.playerScore || 0) + points;
+  hookPlayerDeath() {
+    // Prevent player death when God Mode is active
+    window.originalPlayerDeath = window.originalPlayerDeath || function() {
+      return true;
     };
 
-    window.addScore = function(points) {
-      return window.originalAddScore(points);
+    window.playerDeath = function(...args) {
+      if (modMenu.state.godModeActive) {
+        console.log('[GOD MODE] Death prevented!');
+        return false; // Prevent death
+      }
+      return window.originalPlayerDeath.apply(this, args);
     };
   },
 
-  hookLevelLoading() {
-    window.originalLoadLevel = window.originalLoadLevel || function(levelId) {
-      window.currentLevel = levelId;
-    };
-
-    window.loadLevel = function(levelId) {
-      if (modMenu.state.freezeTimeActive) {
-        console.log('[MOD] Loading level with time frozen');
+  hookAutoPlay() {
+    // Auto Play hook for perfect jumping and dodging
+    window.autoPlayPerfectJump = () => {
+      if (modMenu.state.autoPlayActive) {
+        window.simulateJump = true;
+        window.playerHealth = Infinity;
+        window.playerInvincible = true;
       }
-      return window.originalLoadLevel(levelId);
     };
   },
 
   // Main game loop integration
   integrateGameLoop() {
     const updateGameState = () => {
-      // Apply active mods each frame
+      // God Mode: Keep player alive
       if (modMenu.state.godModeActive) {
         window.playerHealth = Infinity;
+        window.playerInvincible = true;
+        window.canDie = false;
       }
 
-      if (modMenu.state.speedBoostActive) {
-        window.playerSpeedMultiplier = 2.0;
-      }
-
-      if (modMenu.state.unlimitedJumpsActive) {
+      // Auto Play: Perfect gameplay
+      if (modMenu.state.autoPlayActive) {
+        window.playerHealth = Infinity;
+        window.playerInvincible = true;
         window.remainingJumps = Infinity;
-      }
-
-      if (modMenu.state.freezeTimeActive) {
-        window.deltaTime = 0;
+        window.dodgeActive = true;
+        window.perfectTiming = (window.perfectTiming || 0) + 1;
       }
     };
 
