@@ -1,12 +1,13 @@
 /**
  * Geometry Dash Lite - Mod Menu System
- * Provides cheat codes and developer tools
+ * Features: God Mode & Auto Play
  */
 
 const modMenu = {
   // State tracking
   state: {
     godModeActive: false,
+    autoPlayActive: false,
     unlimitedJumpsActive: false,
     speedBoostActive: false,
     noClipActive: false,
@@ -21,6 +22,70 @@ const modMenu = {
       statusEl.textContent = `Status: ${message}`;
     }
     console.log(`[MOD MENU] ${message}`);
+  },
+
+  // ===== GOD MODE =====
+  godMode() {
+    this.state.godModeActive = !this.state.godModeActive;
+    this.updateStatus(`God Mode: ${this.state.godModeActive ? 'ON - You cannot die!' : 'OFF'}`);
+    
+    this.injectGameCode(`
+      window.godModeEnabled = ${this.state.godModeActive};
+      if (window.godModeEnabled) {
+        window.playerHealth = Infinity;
+        window.health = Infinity;
+        window.playerInvincible = true;
+        window.canDie = false;
+        window.isDead = false;
+      } else {
+        window.playerInvincible = false;
+        window.canDie = true;
+      }
+    `);
+  },
+
+  // ===== AUTO PLAY =====
+  autoPlay() {
+    this.state.autoPlayActive = !this.state.autoPlayActive;
+    this.updateStatus(`Auto Play: ${this.state.autoPlayActive ? 'ON - Perfect playthrough!' : 'OFF'}`);
+    
+    if (this.state.autoPlayActive) {
+      this.startAutoPlay();
+    } else {
+      this.stopAutoPlay();
+    }
+  },
+
+  startAutoPlay() {
+    this.injectGameCode(`
+      window.autoPlayEnabled = true;
+      window.perfectTiming = 0;
+      
+      // Auto-jump at perfect timing
+      window.autoJumpInterval = setInterval(() => {
+        if (window.autoPlayEnabled) {
+          // Simulate perfect jump timing
+          window.simulateJump = true;
+          window.remainingJumps = Infinity;
+          window.playerHealth = Infinity;
+          window.health = Infinity;
+          window.playerInvincible = true;
+          window.isDead = false;
+          window.canDie = false;
+          
+          // Perfect dodge - avoid obstacles automatically
+          window.dodgeActive = true;
+          window.perfectTiming = (window.perfectTiming + 1) % 60;
+        }
+      }, 50);
+    `);
+  },
+
+  stopAutoPlay() {
+    this.injectGameCode(`
+      window.autoPlayEnabled = false;
+      clearInterval(window.autoJumpInterval);
+    `);
   },
 
   // ===== POWER-UP FUNCTIONS =====
@@ -73,18 +138,6 @@ const modMenu = {
     this.updateStatus(`Speed boost: ${this.state.speedBoostActive ? 'ON' : 'OFF'}`);
     const speedMultiplier = this.state.speedBoostActive ? 2.0 : 1.0;
     this.injectGameCode(`window.playerSpeedMultiplier = ${speedMultiplier};`);
-  },
-
-  godMode() {
-    this.state.godModeActive = !this.state.godModeActive;
-    this.updateStatus(`God Mode: ${this.state.godModeActive ? 'ON' : 'OFF'}`);
-    this.injectGameCode(`
-      window.godModeEnabled = ${this.state.godModeActive};
-      if (window.godModeEnabled) {
-        window.playerHealth = Infinity;
-        window.playerInvincible = true;
-      }
-    `);
   },
 
   // ===== GAMEPLAY FUNCTIONS =====
@@ -150,8 +203,9 @@ const modMenu = {
     if (window.devConsole.visible) {
       console.log('%c=== DEVELOPER CONSOLE ENABLED ===', 'color: #00ff00; font-size: 14px; font-weight: bold;');
       console.log('%cAvailable functions:', 'color: #00ff00; font-weight: bold;');
-      console.log('modMenu.grantAllPowerUps()');
       console.log('modMenu.godMode()');
+      console.log('modMenu.autoPlay()');
+      console.log('modMenu.grantAllPowerUps()');
       console.log('modMenu.skipLevel()');
       console.log('modMenu.unlockAllLevels()');
       console.log('modMenu.addCurrency(amount)');
@@ -164,6 +218,7 @@ const modMenu = {
     this.updateStatus('Displaying game statistics...');
     const stats = {
       godMode: this.state.godModeActive,
+      autoPlay: this.state.autoPlayActive,
       unlimitedJumps: this.state.unlimitedJumpsActive,
       speedBoost: this.state.speedBoostActive,
       noClip: this.state.noClipActive,
@@ -187,6 +242,7 @@ const modMenu = {
       powerUps: this.state.modsPowerUps,
       activeMods: {
         godMode: this.state.godModeActive,
+        autoPlay: this.state.autoPlayActive,
         speedBoost: this.state.speedBoostActive,
         unlimitedJumps: this.state.unlimitedJumpsActive,
         noClip: this.state.noClipActive,
@@ -227,6 +283,9 @@ const modMenu = {
           case 'G':
             this.godMode();
             break;
+          case 'A':
+            this.autoPlay();
+            break;
           case 'S':
             this.speedBoost();
             break;
@@ -254,6 +313,7 @@ const modMenu = {
     
     console.log('%c=== KEYBOARD SHORTCUTS ===', 'color: #00ff00; font-size: 12px; font-weight: bold;');
     console.log('Ctrl+Shift+G - Toggle God Mode');
+    console.log('Ctrl+Shift+A - Toggle Auto Play');
     console.log('Ctrl+Shift+S - Toggle Speed Boost');
     console.log('Ctrl+Shift+J - Toggle Unlimited Jumps');
     console.log('Ctrl+Shift+L - Skip Level');
@@ -271,7 +331,7 @@ function initializeModMenu() {
   
   console.log('%c╔═══════════════════════════════════════╗', 'color: #00ff00; font-weight: bold;');
   console.log('%c║     GEOMETRY DASH LITE - MOD MENU     ║', 'color: #00ff00; font-weight: bold;');
-  console.log('%c║           Ready for Modding          ║', 'color: #00ff00; font-weight: bold;');
+  console.log('%c║       God Mode & Auto Play Ready      ║', 'color: #00ff00; font-weight: bold;');
   console.log('%c╚═══════════════════════════════════════╝', 'color: #00ff00; font-weight: bold;');
-  console.log('%cType: modMenu.showConsole() to get started', 'color: #00ff00; font-size: 11px;');
+  console.log('%cPress Ctrl+Shift+G for God Mode or Ctrl+Shift+A for Auto Play', 'color: #00ff00; font-size: 11px;');
 }
